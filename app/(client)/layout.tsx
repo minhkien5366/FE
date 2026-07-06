@@ -1,21 +1,22 @@
+// File: ClientLayout.tsx
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import TopBanner from "./components/TopBanner";
-import TopMenu from "./components/TopMenu";
+// Xóa dòng này: import TopMenu from "./components/TopMenu";
 import ChatBubble from "./components/home/ChatBubble";
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <TopBanner />
-      <TopMenu />
+      {/* Xóa dòng <TopMenu /> đi */}
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow relative">
         {children}
-      <ChatBubble />
+        <ChatBubble />
       </main>
       <Footer />
-      
-      
     </>
   );
 }

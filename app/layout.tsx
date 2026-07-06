@@ -1,8 +1,13 @@
+import { Josefin_Sans } from 'next/font/google';
 import '@/app/ui/global.css';
-import TopBanner from './(client)/components/TopBanner';
-import TopMenu from './(client)/components/TopMenu';
-import Navbar from './(client)/components/Navbar';
-import Footer from './(client)/components/Footer';
+
+// Khởi tạo font Josefin Sans với hỗ trợ tiếng Việt
+const josefin = Josefin_Sans({
+  subsets: ['latin', 'vietnamese'],
+  display: 'swap',
+  // Bạn có thể khai báo biến CSS ở đây nếu muốn kết hợp chuyên sâu với Tailwind
+  variable: '--font-josefin', 
+});
 
 export default function RootLayout({
   children,
@@ -11,11 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body className="min-h-screen flex flex-col">
-
-        <main className="flex-grow">
-          {children}
-        </main>
+      {/* 🎯 Áp dụng josefin.className để set font mặc định cho toàn bộ trang web */}
+      <body className={`${josefin.className} min-h-screen flex flex-col antialiased text-slate-50`}>
+        
+        {/* Render nội dung các trang hoặc ClientLayout */}
+        {children}
         
       </body>
     </html>

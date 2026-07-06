@@ -1,49 +1,63 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import MovieCard from '../MovieCard';
+import React, { useState, useEffect } from "react";
+import MovieCard from "../MovieCard";
 import { apiRequest } from "../../../lib/api";
+import { ArrowUp, Loader2, Trophy } from "lucide-react";
 
 export default function PhimDangChieu() {
-
   const [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const normalizeList = (payload: any): any[] => {
+    const data = payload?.data ?? payload;
+
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.content)) return data.content;
+    if (Array.isArray(payload?.content)) return payload.content;
+
+    return [];
+  };
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        // ⭐ API PHIM ĐANG CHIẾU
-        const movieResponse = await apiRequest("/api/v1/movies?status=SHOWING", { method: "GET" });
-        // ⭐ API TOP PHIM BÁN CHẠY
-        const topResponse = await apiRequest("/api/v1/movies/top-tickets", { method: "GET" });
+        const movieResponse = await apiRequest(
+          "/api/v1/movies?status=SHOWING",
+          { method: "GET" }
+        );
+
+        const topResponse = await apiRequest("/api/v1/movies/top-tickets", {
+          method: "GET",
+        });
 
         let showingMovies: any[] = [];
         let topMovies: any[] = [];
 
         if (movieResponse.ok) {
           const movieData = await movieResponse.json();
-          const targetData = movieData.data;
-          showingMovies = targetData?.content || (Array.isArray(targetData) ? targetData : []);
+          showingMovies = normalizeList(movieData);
         }
 
         if (topResponse.ok) {
           const topData = await topResponse.json();
-          topMovies = topData.data || [];
+          topMovies = normalizeList(topData);
         }
 
-        // ⭐ GHÉP totalTickets VÀO MOVIE
         const mergedMovies = showingMovies.map((movie) => {
-          const matchedMovie = topMovies.find((top) => top.movieId === movie.id);
+          const matchedMovie = topMovies.find(
+            (top) => top.movieId === movie.id || top.id === movie.id
+          );
+
           return {
             ...movie,
-            totalTickets: matchedMovie?.totalTickets || 0
+            totalTickets: matchedMovie?.totalTickets || 0,
           };
         });
 
-        // ⭐ SORT THEO SỐ VÉ BÁN
         mergedMovies.sort((a, b) => b.totalTickets - a.totalTickets);
-        setMovies(mergedMovies);
 
+        setMovies(mergedMovies);
       } catch (error) {
         console.error("Lỗi khi tải danh sách phim:", error);
       } finally {
@@ -55,83 +69,102 @@ export default function PhimDangChieu() {
   }, []);
 
   return (
-    <div className="bg-[#050505] min-h-screen pt-5 pb-20 px-6 md:px-16 text-white font-sans">
-      {/* HEADER */}
-      <div className="max-w-[1440px] mx-auto mb-5 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-12">
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 text-red-600 font-black tracking-[0.4em] text-[10px] uppercase">
-            <span className="w-16 h-[2px] bg-red-600"></span> A&K Cinema Now Showing
-          </div>
-          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none italic">
-            PHIM <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-orange-500">
-              ĐANG CHIẾU
-            </span>
-          </h1>
-        </div>
+    <div className="min-h-screen bg-transparent text-white font-sans px-5 md:px-10 lg:px-12 pt-8 md:pt-10 pb-20 relative overflow-hidden">
+      <div className="pointer-events-none absolute top-[-180px] left-1/2 -translate-x-1/2 w-[900px] h-[340px] bg-white/[0.025] blur-[170px] rounded-full" />
+      <div className="pointer-events-none absolute top-[260px] right-[-180px] w-[520px] h-[520px] bg-cyan-400/[0.025] blur-[160px] rounded-full" />
+      <div className="pointer-events-none absolute top-[620px] left-[-180px] w-[520px] h-[520px] bg-yellow-300/[0.018] blur-[160px] rounded-full" />
 
-        <div className="max-w-xs text-gray-500 text-sm font-bold leading-relaxed border-l-2 border-red-600 pl-6 mb-2">
-          Trải nghiệm điện ảnh đỉnh cao với những siêu phẩm mới nhất.
-          Đặt vé ngay để nhận vị trí ngồi đẹp nhất tại hệ thống A&K!
+      {/* HEADER */}
+      <div className="max-w-[1440px] mx-auto relative z-10 mb-10 md:mb-14">
+        <div className="flex items-center justify-center text-center">
+          <h1
+            className="text-[40px] sm:text-[54px] md:text-[66px] lg:text-[72px] leading-[0.9] font-black uppercase text-white tracking-[-0.055em] drop-shadow-[0_10px_30px_rgba(255,255,255,0.14)]"
+            style={{
+              fontFamily: "'Anton', Impact, 'Arial Narrow', sans-serif",
+              WebkitTextStroke: "1px rgba(255,255,255,0.08)",
+            }}
+          >
+            PHIM ĐANG CHIẾU
+          </h1>
         </div>
       </div>
 
       {/* LOADING */}
       {loading ? (
-        <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="flex flex-col gap-4 relative">
-              <div className="aspect-[2/3] w-full bg-zinc-900 animate-pulse rounded-[2.5rem]" />
-              <div className="h-6 w-3/4 bg-zinc-900 animate-pulse rounded-lg" />
-              <div className="h-4 w-1/2 bg-zinc-900 animate-pulse rounded-lg" />
-            </div>
-          ))}
+        <div className="max-w-[1440px] mx-auto relative z-10">
+          <div className="flex items-center justify-center gap-2 mb-10 text-slate-400 text-xs font-black uppercase tracking-widest">
+            <Loader2 size={16} className="animate-spin text-yellow-300" />
+            Đang tải danh sách phim
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-x-8 md:gap-y-10">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="w-full max-w-[310px] mx-auto">
+                <div className="aspect-[4/5] w-full bg-[#1c233d]/40 border border-white/10 animate-pulse rounded-lg" />
+                <div className="mt-3 space-y-2">
+                  <div className="h-4 w-3/4 bg-white/10 animate-pulse rounded-lg" />
+                  <div className="h-3 w-1/2 bg-white/10 animate-pulse rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
-
-        /* GRID MOVIES */
-        <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+        <div className="max-w-[1440px] mx-auto relative z-10">
           {movies.length > 0 ? (
-            movies.map((movie, index) => {
-              const rank = index + 1;
-              const shouldShowBadge = rank <= 3;
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-x-8 md:gap-y-12">
+              {movies.map((movie, index) => {
+                const rank = index + 1;
+                const shouldShowTopBadge = rank <= 3;
 
-              return (
-                <div key={movie.id} className="relative group/card flex flex-col">
-                  {/* 🎯 TOP 1 2 3 */}
-                  {shouldShowBadge && (
-                    <div className="absolute top-[-18px] left-4 z-20 pointer-events-none">
-                      <span
-                        className="text-[95px] md:text-[110px] font-black italic text-transparent drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)] transition-all duration-300 group-hover/card:scale-105"
-                        style={{ WebkitTextStroke: '2px rgba(255,255,255,0.9)' }}
-                      >
-                        {rank}
-                      </span>
+                return (
+                  <div
+                    key={movie.id}
+                    className="relative group/card w-full max-w-[310px] mx-auto"
+                  >
+                    {/* TOP 1 / 2 / 3 */}
+                    {shouldShowTopBadge && (
+                      <div className="absolute top-3 left-3 z-30 pointer-events-none">
+                        <div
+                          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 border backdrop-blur-md shadow-[0_10px_24px_rgba(0,0,0,0.35)] ${
+                            rank === 1
+                              ? "bg-yellow-300 text-[#111827] border-yellow-200"
+                              : rank === 2
+                                ? "bg-white text-[#111827] border-white/80"
+                                : "bg-cyan-300 text-[#061018] border-cyan-200"
+                          }`}
+                        >
+                          <Trophy size={12} />
+                          <span className="text-[10px] font-black uppercase tracking-widest">
+                            Top {rank}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="relative z-10 transition-all duration-300 group-hover/card:-translate-y-1">
+                      <MovieCard
+                        id={movie.id}
+                        title={movie.title}
+                        image={movie.posterUrl}
+                        rating={movie.rating}
+                        reviewCount={movie.reviewCount || 0}
+                        ageRating={movie.ageRating}
+                        genreNames={
+                          movie.genreNames ||
+                          movie.genres?.map((g: any) => g.name) ||
+                          []
+                        }
+                        status={movie.status}
+                      />
                     </div>
-                  )}
-
-                  {/* MOVIE CARD */}
-                  <div className="relative z-10 rounded-[2.5rem] overflow-hidden transition-all duration-300 group-hover/card:-translate-y-2 group-hover/card:shadow-[0_15px_40px_rgba(0,0,0,0.6)]">
-                    <MovieCard
-                      id={movie.id}
-                      title={movie.title}
-                      image={movie.posterUrl}
-                      rating={movie.rating}
-                      reviewCount={movie.reviewCount}
-                      ageRating={movie.ageRating}
-                      
-                      // 🎯 FIX: Hứng mọi loại API (Danh sách DTO hoặc Chi tiết Entity)
-                      genreNames={movie.genreNames || movie.genres?.map((g: any) => g.name) || []}
-                      
-                      status={movie.status}
-                    />
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           ) : (
-            <div className="col-span-full text-center py-32 border border-dashed border-white/10 rounded-[3rem]">
-              <p className="text-zinc-600 font-black uppercase tracking-[0.3em] italic text-xl">
+            <div className="text-center py-28 border border-dashed border-white/10 rounded-lg bg-white/[0.02]">
+              <p className="text-slate-500 font-black uppercase tracking-[0.24em] text-xs md:text-sm">
                 Hệ thống đang cập nhật danh sách phim...
               </p>
             </div>
@@ -139,18 +172,21 @@ export default function PhimDangChieu() {
         </div>
       )}
 
-      {/* FOOTER */}
-      <div className="mt-32 text-center border-t border-white/5 pt-20">
-        <p className="text-gray-600 font-bold tracking-widest text-xs uppercase mb-6">
-          Hết danh sách phim đang chiếu
-        </p>
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="px-12 py-5 border border-white/10 rounded-full font-black text-[10px] tracking-[0.4em] uppercase text-gray-400 hover:text-white hover:border-red-600 transition-all active:scale-95 shadow-2xl"
-        >
-          Quay lại đầu trang
-        </button>
-      </div>
+      {!loading && movies.length > 0 && (
+        <div className="max-w-[1440px] mx-auto relative z-10 mt-20 md:mt-24 text-center border-t border-white/10 pt-12">
+          <p className="text-slate-500 font-black tracking-[0.22em] text-[10px] uppercase mb-6">
+            Hết danh sách phim đang chiếu
+          </p>
+
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="inline-flex items-center gap-2 px-8 md:px-10 h-12 rounded-lg border-2 border-yellow-300 text-yellow-300 hover:bg-yellow-300 hover:text-[#111827] transition-all duration-300 font-black uppercase tracking-[0.12em] text-xs active:scale-95"
+          >
+            <ArrowUp size={15} />
+            Quay lại đầu trang
+          </button>
+        </div>
+      )}
     </div>
   );
 }

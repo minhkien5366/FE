@@ -6,7 +6,7 @@ import MovieCard from "./MovieCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { apiRequest } from "../../../lib/api";
 
-export default function MovieSection() {
+export default function NewMovieSection() {
   const [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -14,10 +14,12 @@ export default function MovieSection() {
   const moviesPerPage = 4;
 
   useEffect(() => {
-    const fetchUpcomingMovies = async () => {
+    const fetchNewMovies = async () => {
       try {
+        // Lấy nhiều phim hơn để có thể bấm qua trái/phải,
+        // nhưng mỗi lượt chỉ hiển thị tối đa 4 phim.
         const response = await apiRequest(
-          "/api/v1/movies?status=COMING_SOON&page=0&size=12&sort=id,desc",
+          "/api/v1/movies?status=SHOWING&page=0&size=12&sort=id,desc",
           {
             method: "GET",
           }
@@ -39,13 +41,13 @@ export default function MovieSection() {
           }
         }
       } catch (error) {
-        console.error("Lỗi tải phim sắp chiếu tại trang chủ:", error);
+        console.error("Lỗi tải phim mới nhất tại trang chủ:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUpcomingMovies();
+    fetchNewMovies();
   }, []);
 
   const totalPages = Math.ceil(movies.length / moviesPerPage);
@@ -67,23 +69,23 @@ export default function MovieSection() {
 
   if (loading) {
     return (
-      <section className="px-6 md:px-12 py-14 md:py-16 bg-transparent relative overflow-hidden">
+      <section className="px-6 md:px-12 py-16 bg-transparent relative overflow-hidden mt-8">
         <div className="max-w-[1400px] mx-auto">
-          <div className="flex justify-center mb-12 md:mb-16">
+          <div className="flex justify-center mb-14">
             <div className="h-12 w-[300px] bg-white/10 animate-pulse rounded-xl" />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-x-6 md:gap-y-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="aspect-[3/4] w-full max-w-[250px] sm:max-w-[260px] md:max-w-[270px] mx-auto bg-[#1c233d]/40 border border-white/10 animate-pulse rounded-[1rem]"
+                className="aspect-[2/3] w-full bg-[#1c233d]/40 border border-white/10 animate-pulse rounded-[1rem]"
               />
             ))}
           </div>
 
-          <div className="flex justify-center mt-10 md:mt-12">
-            <div className="h-12 md:h-14 w-[220px] md:w-[280px] bg-white/10 animate-pulse rounded-lg" />
+          <div className="flex justify-center mt-10">
+            <div className="h-12 w-[220px] bg-white/10 animate-pulse rounded-xl" />
           </div>
         </div>
       </section>
@@ -93,22 +95,26 @@ export default function MovieSection() {
   if (movies.length === 0) return null;
 
   return (
-    <section className="px-6 md:px-12 py-14 md:py-16 bg-transparent relative overflow-hidden">
-      <div className="pointer-events-none absolute top-[-160px] left-1/2 -translate-x-1/2 w-[820px] h-[320px] bg-white/[0.025] blur-[160px] rounded-full" />
+    <section className="px-6 md:px-12 py-14 md:py-18 bg-transparent relative overflow-hidden mt-8">
+      {/* Vệt sáng nền nhẹ phía sau section */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[760px] h-[360px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 right-0 w-[420px] h-[420px] bg-cyan-400/5 blur-[140px] rounded-full pointer-events-none -translate-y-1/2" />
 
       <div className="max-w-[1400px] mx-auto relative z-10">
+        {/* Tiêu đề giữa */}
         <div className="relative flex flex-col items-center justify-center text-center mb-12 md:mb-16">
           <h2
             className="text-[36px] sm:text-[48px] md:text-[60px] lg:text-[40px] leading-[0.92] font-black uppercase text-white tracking-[-0.045em] drop-shadow-[0_8px_28px_rgba(255,255,255,0.14)]"
             style={{
-              fontFamily: `"Anton", "Impact", "Arial Narrow", sans-serif`,
+              fontFamily: '"Anton", "Impact", "Arial Narrow", sans-serif',
               WebkitTextStroke: "1px rgba(255,255,255,0.08)",
             }}
           >
-            PHIM SẮP CHIẾU
+            PHIM ĐANG CHIẾU
           </h2>
         </div>
 
+        {/* Khu vực phim + nút trái/phải */}
         <div className="relative">
           {totalPages > 1 && (
             <button
@@ -134,7 +140,7 @@ export default function MovieSection() {
             {visibleMovies.map((movie: any) => (
               <div
                 key={movie.id}
-                className="w-full max-w-[250px] sm:max-w-[260px] md:max-w-[270px] mx-auto transition-transform duration-300 hover:-translate-y-1 h-full"
+                className="transition-transform duration-300 hover:-translate-y-1 h-full"
               >
                 <MovieCard
                   id={movie.id}
@@ -154,6 +160,7 @@ export default function MovieSection() {
             ))}
           </div>
 
+          {/* Nút trái/phải cho mobile */}
           {totalPages > 1 && (
             <div className="flex md:hidden items-center justify-center gap-5 mt-8">
               <button
@@ -174,6 +181,7 @@ export default function MovieSection() {
             </div>
           )}
 
+          {/* Chấm pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-3 mt-10">
               {[...Array(totalPages)].map((_, index) => (
@@ -191,12 +199,13 @@ export default function MovieSection() {
             </div>
           )}
 
+          {/* Nút Xem thêm dưới cùng */}
           <div className="flex justify-center mt-10 md:mt-12">
             <Link
-              href="/movies/coming"
+              href="/movies/now"
               className="min-w-[220px] md:min-w-[280px] h-12 md:h-14 px-10 inline-flex items-center justify-center rounded-lg border-2 border-yellow-300 text-yellow-300 hover:bg-yellow-300 hover:text-[#111827] transition-all duration-300 font-black uppercase tracking-[0.08em] text-sm md:text-base"
               style={{
-                fontFamily: `"Anton", "Impact", "Arial Narrow", sans-serif`,
+                fontFamily: '"Anton", "Impact", "Arial Narrow", sans-serif',
               }}
             >
               Xem thêm

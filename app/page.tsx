@@ -1,19 +1,19 @@
 import PostSection from "./(client)/components/home/PostSection";
 import MovieSection from "./(client)/components/home/MovieSection";
 import ComboSection from "./(client)/components/home/ComboSection";
-import HeroSection from "./(client)/components/home/HeroSection";
+import Banner from "./(client)/components/home/Banner";
 import TopBanner from "./(client)/components/TopBanner";
-import TopMenu from "./(client)/components/TopMenu";
 import Navbar from "./(client)/components/Navbar";
 import Footer from "./(client)/components/Footer";
 import ChatBubble from "./(client)/components/home/ChatBubble";
+import NewMovieSection from "./(client)/components/home/NewMovieSection";
 export default function Home() {
   return (
     <>
-      <TopBanner />
-      <TopMenu />
+            <TopBanner />
       <Navbar />
-      <HeroSection />
+      <Banner />
+      <NewMovieSection />
       <ComboSection />
       <PostSection />
       <MovieSection />
