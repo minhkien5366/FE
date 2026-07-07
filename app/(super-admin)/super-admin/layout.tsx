@@ -39,9 +39,10 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
       }
 
       try {
-        // 1. Fetch thông tin root account
-        // const adminRes = await fetch('https://akcinema.vercel.app/api/v1/users/me', {
-          const adminRes = await fetch('http://localhost:3000/api/v1/users/me', {
+        // 🔥 CẬP NHẬT MỚI: Dùng biến môi trường NEXT_PUBLIC_SITE_URL để tự động nhận dạng môi trường
+        // Chặn lỗi CORS/404 khi deploy lên Vercel
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        const adminRes = await fetch(`${siteUrl}/api/v1/users/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         

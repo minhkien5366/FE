@@ -24,7 +24,9 @@ import { getTokenByRole, RoleType } from "../../lib/auth";
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
+  const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(
+    null
+  );
 
   const [user, setUser] = useState<any>(null);
   const [loadingUser, setLoadingUser] = useState(true);
@@ -176,6 +178,63 @@ export default function Navbar() {
     { title: "GIỚI THIỆU", href: "/about" },
   ];
 
+  const leftNavItems = navItems.slice(0, 2);
+  const rightNavItems = navItems.slice(2);
+
+  const renderDesktopNavItem = (
+    item: any,
+    dropdownAlign: "left" | "right" = "right"
+  ) => {
+    const hasSubmenu = item.submenu && item.submenu.length > 0;
+
+    return (
+      <div key={item.title} className="relative group/menu">
+        {hasSubmenu ? (
+          <>
+            <Link
+              href={item.href || "#"}
+              className="flex items-center gap-1.5 text-[13px] xl:text-sm whitespace-nowrap font-[1000] text-slate-100 hover:text-cyan-200 transition-all tracking-[0.1em] uppercase py-2 no-underline group-hover/menu:drop-shadow-[0_0_8px_rgba(103,232,249,0.45)]"
+            >
+              {item.title}
+              <ChevronDown
+                size={15}
+                className="group-hover/menu:rotate-180 transition-transform duration-300 text-yellow-300"
+              />
+            </Link>
+
+            <div
+              className={`absolute top-full ${
+                dropdownAlign === "left" ? "left-0" : "right-0"
+              } pt-4 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 translate-y-2 group-hover/menu:translate-y-0 z-[110]`}
+            >
+              <div className="bg-[#080c1b]/98 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl shadow-[0_24px_70px_rgba(0,0,0,0.55)] min-w-[230px]">
+                <div className="flex flex-col gap-3">
+                  {item.submenu.map((sub: any) => (
+                    <Link
+                      key={sub.name}
+                      href={sub.href}
+                      className="text-[11px] font-bold text-slate-300 hover:text-yellow-200 hover:translate-x-2 transition-all duration-300 uppercase tracking-widest flex items-center gap-3 group/item no-underline"
+                    >
+                      <div className="w-1.5 h-1.5 bg-yellow-300 rounded-full scale-0 group-hover/item:scale-100 transition-transform" />
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <Link
+            href={item.href || "#"}
+            className="flex items-center gap-1.5 text-[13px] xl:text-sm whitespace-nowrap font-[1000] text-slate-100 hover:text-cyan-200 transition-all tracking-[0.1em] uppercase py-2 no-underline"
+          >
+            {item.title}
+          </Link>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="w-full z-[999] relative">
       <header
@@ -188,12 +247,15 @@ export default function Navbar() {
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12">
           {/* TẦNG 1: LOGO - TÌM KIẾM - ĐĂNG NHẬP */}
           <div className="flex items-center justify-between py-3 md:py-4 border-b border-white/10">
-            <Link href="/" className="flex items-center group shrink-0 no-underline">
-              <span className="text-3xl md:text-5xl font-[1000] tracking-tighter italic pr-1 transition-transform group-hover:scale-105 text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-yellow-300 drop-shadow-[0_0_18px_rgba(255,255,255,0.18)]">
+            <Link
+              href="/"
+              className="flex items-center group shrink-0 no-underline overflow-visible"
+            >
+              <span className="inline-flex items-center overflow-visible px-1.5 py-1 text-4xl md:text-[58px] font-[1000] leading-none tracking-[-0.08em] italic transition-transform group-hover:scale-105 text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-yellow-300 drop-shadow-[0_0_18px_rgba(255,255,255,0.18)]">
                 KN
               </span>
 
-              <span className="text-[10px] md:text-xs text-slate-200 font-black tracking-[0.3em] uppercase mt-1 md:mt-2 ml-1 md:ml-2">
+              <span className="text-xs md:text-base text-slate-100 font-[1000] tracking-[0.28em] uppercase mt-1 md:mt-2 ml-0.5 md:ml-1">
                 Cinema
               </span>
             </Link>
@@ -327,53 +389,14 @@ export default function Navbar() {
           </div>
 
           {/* TẦNG 2: THANH MENU ĐIỀU HƯỚNG CHÍNH */}
-          <nav className="hidden lg:flex items-center justify-end gap-8 py-3">
-            {navItems.map((item) => {
-              const hasSubmenu = item.submenu && item.submenu.length > 0;
+          <nav className="hidden lg:flex items-center justify-between py-3">
+            <div className="flex items-center gap-8">
+              {leftNavItems.map((item) => renderDesktopNavItem(item, "left"))}
+            </div>
 
-              return (
-                <div key={item.title} className="relative group/menu">
-                  {hasSubmenu ? (
-                    <>
-                      <Link
-                        href={item.href || "#"}
-                        className="flex items-center gap-1.5 text-xs whitespace-nowrap font-black text-slate-200/85 hover:text-cyan-200 transition-all tracking-[0.15em] uppercase py-2 no-underline group-hover/menu:drop-shadow-[0_0_8px_rgba(103,232,249,0.45)]"
-                      >
-                        {item.title}
-                        <ChevronDown
-                          size={14}
-                          className="group-hover/menu:rotate-180 transition-transform duration-300 text-yellow-300"
-                        />
-                      </Link>
-
-                      <div className="absolute top-full right-0 pt-4 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 translate-y-2 group-hover/menu:translate-y-0 z-[110]">
-                        <div className="bg-[#080c1b]/98 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl shadow-[0_24px_70px_rgba(0,0,0,0.55)] min-w-[230px]">
-                          <div className="flex flex-col gap-3">
-                            {item.submenu.map((sub) => (
-                              <Link
-                                key={sub.name}
-                                href={sub.href}
-                                className="text-[11px] font-bold text-slate-300 hover:text-yellow-200 hover:translate-x-2 transition-all duration-300 uppercase tracking-widest flex items-center gap-3 group/item no-underline"
-                              >
-                                <div className="w-1.5 h-1.5 bg-yellow-300 rounded-full scale-0 group-hover/item:scale-100 transition-transform" />
-                                {sub.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <Link
-                      href={item.href || "#"}
-                      className="flex items-center gap-1.5 text-xs whitespace-nowrap font-black text-slate-200/85 hover:text-cyan-200 transition-all tracking-[0.15em] uppercase py-2 no-underline"
-                    >
-                      {item.title}
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
+            <div className="flex items-center gap-8">
+              {rightNavItems.map((item) => renderDesktopNavItem(item, "right"))}
+            </div>
           </nav>
         </div>
       </header>
@@ -393,9 +416,12 @@ export default function Navbar() {
         }`}
       >
         <div className="flex justify-between items-center p-6 border-b border-white/10">
-          <span className="text-2xl font-[1000] tracking-tighter italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-yellow-300">
-            KN
-            <span className="text-[8px] text-slate-300 ml-1 tracking-[0.25em]">
+          <span className="flex items-center overflow-visible">
+            <span className="inline-flex items-center overflow-visible px-1.5 py-1 text-3xl font-[1000] leading-none tracking-[-0.08em] italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-yellow-300 drop-shadow-[0_0_14px_rgba(255,255,255,0.16)]">
+              KN
+            </span>
+
+            <span className="text-[10px] text-slate-300 ml-0.5 tracking-[0.24em] uppercase font-black">
               CINEMA
             </span>
           </span>
@@ -465,7 +491,7 @@ export default function Navbar() {
                           mobileExpandedItem === item.title ? null : item.title
                         )
                       }
-                      className="w-full flex justify-between items-center py-4 text-xs font-black text-slate-200 tracking-[0.2em] uppercase hover:text-cyan-200 transition-colors"
+                      className="w-full flex justify-between items-center py-4 text-[13px] font-[1000] text-slate-100 tracking-[0.18em] uppercase hover:text-cyan-200 transition-colors"
                     >
                       {item.title}
                       <ChevronDown
@@ -486,7 +512,7 @@ export default function Navbar() {
                       }`}
                     >
                       <div className="flex flex-col gap-3 pl-4 border-l border-white/10 ml-2">
-                        {item.submenu.map((sub) => (
+                        {item.submenu.map((sub: any) => (
                           <Link
                             key={sub.name}
                             href={sub.href}
@@ -504,7 +530,7 @@ export default function Navbar() {
                   <Link
                     href={item.href || "#"}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full flex justify-between items-center py-4 text-xs font-black text-slate-200 hover:text-cyan-200 tracking-[0.2em] uppercase transition-colors no-underline"
+                    className="w-full flex justify-between items-center py-4 text-[13px] font-[1000] text-slate-100 hover:text-cyan-200 tracking-[0.18em] uppercase transition-colors no-underline"
                   >
                     {item.title}
                     <ChevronRight size={14} className="text-slate-600" />

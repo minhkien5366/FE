@@ -1,7 +1,6 @@
 import { getTokenByRole, RoleType } from "./auth";
 
-// export const BASE_URL = "https://akcinema-api.onrender.com";
-export const BASE_URL = "http://localhost:8080";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export async function apiRequest(
   endpoint: string,
