@@ -1,51 +1,58 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Bell, Search, ChevronDown, ShieldCheck, LogOut } from 'lucide-react';
-import Cookies from 'js-cookie';
-import { apiAdminRequest } from "@/app/lib/api"; 
-import { useRouter, usePathname } from 'next/navigation';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Bell, Search, ChevronDown, ShieldCheck, LogOut } from "lucide-react";
+import Cookies from "js-cookie";
+import { apiAdminRequest } from "@/app/lib/api";
+import { useRouter, usePathname } from "next/navigation";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 
 export default function AdminHeader() {
   const [thongTinAdmin, setThongTinAdmin] = useState<any>(null);
   const [hienMenuCaNhan, setHienMenuCaNhan] = useState(false);
   const [soTinNhanChuaDoc, setSoTinNhanChuaDoc] = useState(0);
-  
+
   const router = useRouter();
   const pathname = usePathname();
-  
-  // Dùng useRef để track đường dẫn hiện tại một cách an toàn cho SPA Next.js
+
   const currentPathRef = useRef(pathname);
+  const stompClientRef = useRef<Client | null>(null);
+
   useEffect(() => {
     currentPathRef.current = pathname;
-    if (pathname === '/admin/chat') {
+
+    if (pathname === "/admin/chat") {
       setSoTinNhanChuaDoc(0);
     }
   }, [pathname]);
 
-  const stompClientRef = useRef<Client | null>(null);
-
   const xuLyDangXuat = useCallback(() => {
-    const keyToken = 'token_admin';
+    const keyToken = "token_admin";
+
     localStorage.removeItem(keyToken);
-    Cookies.remove(keyToken, { path: '/' });
-    localStorage.removeItem('user_info_admin');
+    Cookies.remove(keyToken, { path: "/" });
+    localStorage.removeItem("user_info_admin");
     window.dispatchEvent(new Event("auth-changed"));
-    window.location.href = '/login';
+    window.location.href = "/login";
   }, []);
 
   useEffect(() => {
     const taiThongTin = async () => {
       try {
-        const res = await apiAdminRequest('/api/v1/users/me');
+        const res = await apiAdminRequest("/api/v1/users/me");
 
         if (res.ok) {
           const ketQua = await res.json();
           const duLieuTho = ketQua.data?.user || ketQua.data;
-          
-          const quyenTaiKhoan: string[] = duLieuTho?.roles?.map((r: any) => r.roleName || r) || [];
-          if (!quyenTaiKhoan.includes("ROLE_ADMIN") && !quyenTaiKhoan.includes("ADMIN")) {
+
+          const quyenTaiKhoan: string[] =
+            duLieuTho?.roles?.map((r: any) => r.roleName || r) || [];
+
+          if (
+            !quyenTaiKhoan.includes("ROLE_ADMIN") &&
+            !quyenTaiKhoan.includes("ADMIN")
+          ) {
             xuLyDangXuat();
             return;
           }
@@ -62,47 +69,41 @@ export default function AdminHeader() {
     taiThongTin();
   }, [xuLyDangXuat]);
 
-  // ========================================================
-  // 🔥 LẮNG NGHE WEBSOCKET NÂNG CẤP (CHỐNG CHẾT TRÊN PROD)
-  // ========================================================
   useEffect(() => {
     const cinemaId = thongTinAdmin?.managedCinemaItemId;
-    
-    // Check thằng object thay vì check .active để chống tạo kết nối ảo
+
     if (!cinemaId || stompClientRef.current) return;
 
-    // 🔥 FIX 1: Tự động gọt bỏ dấu "/" thừa ở cuối biến môi trường nếu có
     let BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-    if (BACKEND_URL.endsWith('/')) {
+
+    if (BACKEND_URL.endsWith("/")) {
       BACKEND_URL = BACKEND_URL.slice(0, -1);
     }
 
-    // 🔥 FIX 2: Tự động chuyển đổi HTTP sang HTTPS nếu trang web đang chạy HTTPS
-    // Điều này giúp dập tắt hoàn toàn lỗi SecurityError: Mixed Content
-    if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-        if (BACKEND_URL.startsWith('http://') && !BACKEND_URL.includes('localhost')) {
-            BACKEND_URL = BACKEND_URL.replace('http://', 'https://');
-        }
+    if (typeof window !== "undefined" && window.location.protocol === "https:") {
+      if (
+        BACKEND_URL.startsWith("http://") &&
+        !BACKEND_URL.includes("localhost")
+      ) {
+        BACKEND_URL = BACKEND_URL.replace("http://", "https://");
+      }
     }
 
     const client = new Client({
       webSocketFactory: () => new SockJS(`${BACKEND_URL}/ws`),
       reconnectDelay: 5000,
-      debug: (str) => {
-        // console.log("[WS Header]:", str); 
-      }
+      debug: () => {},
     });
 
     client.onConnect = () => {
-      client.subscribe(`/topic/admin.notifications.cinema.${cinemaId}`, (msg) => {
-        
-        // Dùng currentPathRef thay cho window.location.pathname
-        if (currentPathRef.current !== '/admin/chat') {
-          setSoTinNhanChuaDoc(prev => prev + 1);
+      client.subscribe(`/topic/admin.notifications.cinema.${cinemaId}`, () => {
+        if (currentPathRef.current !== "/admin/chat") {
+          setSoTinNhanChuaDoc((prev) => prev + 1);
+
           try {
-            const audio = new Audio('/notification.mp3');
+            const audio = new Audio("/notification.mp3");
             audio.play().catch(() => {});
-          } catch(e) {}
+          } catch (e) {}
         }
       });
     };
@@ -111,7 +112,6 @@ export default function AdminHeader() {
     stompClientRef.current = client;
 
     return () => {
-      // Dọn rác sạch sẽ khi component unmount
       if (stompClientRef.current) {
         stompClientRef.current.deactivate();
         stompClientRef.current = null;
@@ -119,93 +119,126 @@ export default function AdminHeader() {
     };
   }, [thongTinAdmin]);
 
+  const adminName = thongTinAdmin
+    ? `${thongTinAdmin.lastName || ""} ${thongTinAdmin.firstName || ""}`.trim()
+    : "Quản trị viên";
+
+  const adminRole = Array.isArray(thongTinAdmin?.roles)
+    ? (thongTinAdmin.roles[0]?.roleName || thongTinAdmin.roles[0] || "ADMIN")
+        .replace("ROLE_", "")
+        .replace("_", " ")
+    : "ADMIN";
+
   return (
-    <header className="h-20 border-b border-zinc-900 bg-[#060608] px-6 md:px-10 flex items-center justify-between sticky top-0 z-50 shrink-0 select-none">
-      
-      {/* THANH TÌM KIẾM */}
-      <div className="relative w-64 md:w-96 group">
-        <Search 
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-red-600 transition-colors" 
-          size={16} 
+    <header className="h-20 border-b border-white/10 bg-[#0b1020]/95 backdrop-blur-xl px-5 md:px-8 lg:px-10 flex items-center justify-between sticky top-0 z-50 shrink-0 select-none shadow-[0_14px_38px_rgba(0,0,0,0.28)]">
+      {/* SEARCH */}
+      <div className="relative w-56 md:w-80 lg:w-96 group">
+        <Search
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-yellow-300 transition-colors"
+          size={16}
         />
-        <input 
+
+        <input
           type="text"
-          placeholder="Tìm phim, mã vé hoặc cụm rạp..." 
-          className="w-full bg-[#0c0c10] border border-zinc-900 rounded-2xl py-2.5 pl-12 pr-4 text-[11px] font-bold outline-none focus:border-zinc-800 transition-all text-white placeholder:text-zinc-700"
+          placeholder="Tìm phim, mã vé hoặc cụm rạp..."
+          className="w-full h-11 bg-[#0d1222] border border-white/10 rounded-2xl pl-12 pr-4 text-[11px] font-bold outline-none focus:border-cyan-300/45 focus:bg-[#111827] transition-all text-slate-100 placeholder:text-slate-600 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
         />
       </div>
 
-      {/* PHẦN TIỆN ÍCH BÊN PHẢI */}
+      {/* RIGHT */}
       <div className="flex items-center gap-4 md:gap-6">
-        
-        {/* 🔥 NÚT CHUÔNG THÔNG BÁO TỚI PHÒNG CHAT */}
-        <button 
-          onClick={() => router.push('/admin/chat')}
-          className="relative p-2.5 bg-zinc-950 border border-zinc-900 rounded-xl text-zinc-500 hover:text-white hover:bg-zinc-900 transition-all group"
+        {/* NOTIFICATION */}
+        <button
+          onClick={() => router.push("/admin/chat")}
+          className="relative p-2.5 bg-[#0d1222] border border-white/10 rounded-xl text-slate-400 hover:text-yellow-300 hover:bg-[#111827] hover:border-yellow-300/35 transition-all group shadow-[0_10px_25px_rgba(0,0,0,0.22)] active:scale-95"
+          aria-label="Thông báo chat"
         >
-          <Bell size={16} className={`${soTinNhanChuaDoc > 0 ? 'animate-swing text-white' : 'group-hover:rotate-12 transition-transform'}`} />
-          
+          <Bell
+            size={16}
+            className={
+              soTinNhanChuaDoc > 0
+                ? "animate-swing text-yellow-300"
+                : "group-hover:rotate-12 transition-transform"
+            }
+          />
+
           {soTinNhanChuaDoc > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-600 rounded-full border-2 border-[#060608] text-[9px] font-black text-white flex items-center justify-center animate-in zoom-in shadow-[0_0_10px_rgba(220,38,38,0.5)]">
-              {soTinNhanChuaDoc > 9 ? '9+' : soTinNhanChuaDoc}
+            <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 bg-yellow-300 rounded-full border-2 border-[#0b1020] text-[9px] font-black text-[#111827] flex items-center justify-center animate-in zoom-in shadow-[0_0_14px_rgba(244,212,25,0.55)]">
+              {soTinNhanChuaDoc > 9 ? "9+" : soTinNhanChuaDoc}
             </span>
           )}
         </button>
-        
-        <div className="h-6 w-[1px] bg-zinc-900 hidden sm:block"></div>
 
-        {/* MENU THẢ XUỐNG CỦA TÀI KHOẢN */}
+        <div className="h-7 w-[1px] bg-white/10 hidden sm:block" />
+
+        {/* ACCOUNT */}
         <div className="relative">
-          <button 
+          <button
             onClick={() => setHienMenuCaNhan(!hienMenuCaNhan)}
             className="flex items-center gap-3 pl-2 group transition-all"
           >
             <div className="text-right hidden md:block">
-              <p className="text-[10px] font-black text-white uppercase tracking-tight leading-none">
-                {thongTinAdmin ? `${thongTinAdmin.lastName} ${thongTinAdmin.firstName}` : "QUẢN TRỊ VIÊN"}
+              <p className="text-[10px] font-black text-white uppercase tracking-wide leading-none">
+                {adminName || "Quản trị viên"}
               </p>
+
               <div className="flex items-center justify-end gap-1 mt-1.5">
-                <ShieldCheck size={10} className="text-red-500" />
-                <p className="text-[8px] font-black text-red-500 uppercase tracking-wider">
-                  {Array.isArray(thongTinAdmin?.roles) 
-                    ? (thongTinAdmin.roles[0]?.roleName || thongTinAdmin.roles[0]).replace('ROLE_', '') 
-                    : "ADMIN"}
+                <ShieldCheck size={10} className="text-yellow-300" />
+                <p className="text-[8px] font-black text-yellow-300 uppercase tracking-wider">
+                  {adminRole}
                 </p>
               </div>
             </div>
 
-            {/* ẢNH ĐẠI DIỆN */}
-            <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden group-hover:border-zinc-700 transition-all">
+            <div className="w-9 h-9 rounded-xl bg-[#101829] border border-white/10 flex items-center justify-center overflow-hidden group-hover:border-cyan-300/45 transition-all shadow-[0_10px_25px_rgba(0,0,0,0.22)]">
               {thongTinAdmin?.avatar ? (
-                <img src={thongTinAdmin.avatar} alt="avatar" className="w-full h-full object-cover" />
+                <img
+                  src={thongTinAdmin.avatar}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <div className="w-full h-full bg-[#0c0c10] flex items-center justify-center">
-                  <span className="text-[11px] font-black text-zinc-500 group-hover:text-red-500 transition-colors">
+                <div className="w-full h-full bg-gradient-to-br from-cyan-700 to-yellow-500 flex items-center justify-center">
+                  <span className="text-[11px] font-black text-white">
                     {thongTinAdmin?.firstName?.charAt(0) || "A"}
                   </span>
                 </div>
               )}
             </div>
-            
-            <ChevronDown size={12} className={`text-zinc-600 transition-transform duration-300 ${hienMenuCaNhan ? 'rotate-180' : ''}`} />
+
+            <ChevronDown
+              size={12}
+              className={`text-slate-500 group-hover:text-cyan-300 transition-transform duration-300 ${
+                hienMenuCaNhan ? "rotate-180" : ""
+              }`}
+            />
           </button>
 
-          {/* MENU CHI TIẾT */}
           {hienMenuCaNhan && (
             <>
-              <div className="fixed inset-0 z-[-1]" onClick={() => setHienMenuCaNhan(false)} />
-              <div className="absolute right-0 mt-3 w-56 bg-zinc-950 border border-zinc-900 rounded-xl shadow-xl p-1.5 animate-in fade-in zoom-in-95 duration-150">
-                <div className="p-3 border-b border-zinc-900 mb-1 bg-[#0c0c10]/50 rounded-lg">
-                  <p className="text-[8px] text-zinc-500 font-black uppercase tracking-wider mb-0.5">Tài khoản vận hành</p>
-                  <p className="text-[11px] text-zinc-300 truncate font-bold">{thongTinAdmin?.email || 'Đang đồng bộ...'}</p>
+              <div
+                className="fixed inset-0 z-[-1]"
+                onClick={() => setHienMenuCaNhan(false)}
+              />
+
+              <div className="absolute right-0 mt-4 w-64 bg-[#080c1b] border border-white/10 rounded-2xl shadow-[0_24px_70px_rgba(0,0,0,0.65)] p-2 animate-in fade-in zoom-in-95 duration-150">
+                <div className="p-3 border border-white/10 mb-1 bg-[#0d1222] rounded-xl">
+                  <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider mb-1">
+                    Tài khoản vận hành
+                  </p>
+
+                  <p className="text-[11px] text-slate-300 truncate font-bold">
+                    {thongTinAdmin?.email || "Đang đồng bộ..."}
+                  </p>
                 </div>
-                
-                <div className="py-0.5">
-                  <button 
+
+                <div className="py-1">
+                  <button
                     onClick={xuLyDangXuat}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-red-500 hover:bg-red-500/5 transition-all"
+                    className="w-full flex items-center gap-2 px-3 py-3 rounded-xl text-[9px] font-black uppercase tracking-wider text-rose-300 hover:bg-rose-600 hover:text-white transition-all"
                   >
-                    <LogOut size={13} /> Đăng xuất hệ thống
+                    <LogOut size={13} />
+                    Đăng xuất hệ thống
                   </button>
                 </div>
               </div>
@@ -216,12 +249,23 @@ export default function AdminHeader() {
 
       <style jsx global>{`
         @keyframes swing {
-          20% { transform: rotate(15deg); }
-          40% { transform: rotate(-10deg); }
-          60% { transform: rotate(5deg); }
-          80% { transform: rotate(-5deg); }
-          100% { transform: rotate(0deg); }
+          20% {
+            transform: rotate(15deg);
+          }
+          40% {
+            transform: rotate(-10deg);
+          }
+          60% {
+            transform: rotate(5deg);
+          }
+          80% {
+            transform: rotate(-5deg);
+          }
+          100% {
+            transform: rotate(0deg);
+          }
         }
+
         .animate-swing {
           animation: swing 1s ease-in-out infinite;
         }

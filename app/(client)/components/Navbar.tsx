@@ -169,7 +169,7 @@ export default function Navbar() {
     {
       title: "THÀNH VIÊN",
       submenu: [
-        { name: "Tài Khoản Của Tôi", href: "/profile" },
+        { name: "Mã Giảm Giá", href: "/discounts" },
         { name: "Quyền Lợi Thành Viên", href: "/membership" },
       ],
     },
@@ -193,11 +193,11 @@ export default function Navbar() {
           <>
             <Link
               href={item.href || "#"}
-              className="flex items-center gap-1.5 text-[13px] xl:text-sm whitespace-nowrap font-[1000] text-slate-100 hover:text-cyan-200 transition-all tracking-[0.1em] uppercase py-2 no-underline group-hover/menu:drop-shadow-[0_0_8px_rgba(103,232,249,0.45)]"
+              className="flex items-center gap-1.5 text-xs xl:text-[13px] whitespace-nowrap font-black text-slate-100 hover:text-cyan-200 transition-all tracking-[0.09em] uppercase py-2 no-underline group-hover/menu:drop-shadow-[0_0_8px_rgba(103,232,249,0.45)]"
             >
               {item.title}
               <ChevronDown
-                size={15}
+                size={14}
                 className="group-hover/menu:rotate-180 transition-transform duration-300 text-yellow-300"
               />
             </Link>
@@ -207,13 +207,13 @@ export default function Navbar() {
                 dropdownAlign === "left" ? "left-0" : "right-0"
               } pt-4 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 translate-y-2 group-hover/menu:translate-y-0 z-[110]`}
             >
-              <div className="bg-[#080c1b]/98 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl shadow-[0_24px_70px_rgba(0,0,0,0.55)] min-w-[230px]">
-                <div className="flex flex-col gap-3">
+              <div className="bg-[#080c1b] border border-white/10 p-3 rounded-2xl shadow-[0_24px_70px_rgba(0,0,0,0.65)] min-w-[230px]">
+                <div className="flex flex-col gap-1">
                   {item.submenu.map((sub: any) => (
                     <Link
                       key={sub.name}
                       href={sub.href}
-                      className="text-[11px] font-bold text-slate-300 hover:text-yellow-200 hover:translate-x-2 transition-all duration-300 uppercase tracking-widest flex items-center gap-3 group/item no-underline"
+                      className="text-[10px] font-black text-slate-300 hover:text-yellow-200 hover:bg-[#111827] hover:translate-x-1 transition-all duration-300 uppercase tracking-[0.13em] flex items-center gap-3 group/item no-underline px-3 py-2.5 rounded-xl"
                     >
                       <div className="w-1.5 h-1.5 bg-yellow-300 rounded-full scale-0 group-hover/item:scale-100 transition-transform" />
                       {sub.name}
@@ -226,7 +226,7 @@ export default function Navbar() {
         ) : (
           <Link
             href={item.href || "#"}
-            className="flex items-center gap-1.5 text-[13px] xl:text-sm whitespace-nowrap font-[1000] text-slate-100 hover:text-cyan-200 transition-all tracking-[0.1em] uppercase py-2 no-underline"
+            className="flex items-center gap-1.5 text-xs xl:text-[13px] whitespace-nowrap font-black text-slate-100 hover:text-cyan-200 transition-all tracking-[0.09em] uppercase py-2 no-underline"
           >
             {item.title}
           </Link>
@@ -245,7 +245,6 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12">
-          {/* TẦNG 1: LOGO - TÌM KIẾM - ĐĂNG NHẬP */}
           <div className="flex items-center justify-between py-3 md:py-4 border-b border-white/10">
             <Link
               href="/"
@@ -280,13 +279,13 @@ export default function Navbar() {
                   </div>
                 ) : user ? (
                   <div className="relative group h-full flex items-center z-[110]">
-                    <div className="flex items-center gap-3 cursor-pointer select-none rounded-2xl px-2 py-1.5 bg-white/[0.04] border border-white/10 hover:border-cyan-300/40 transition-all">
+                    <div className="flex items-center gap-3 cursor-pointer select-none rounded-2xl px-2 py-1.5 bg-[#0d1222] border border-white/10 hover:border-cyan-300/40 transition-all">
                       <div className="flex flex-col items-end leading-none gap-1">
                         <span className="text-xs font-black text-slate-100 group-hover:text-cyan-200 transition-all uppercase tracking-wider italic">
                           {user.lastName} {user.firstName}
                         </span>
 
-                        <span className="text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase border bg-white/[0.04] text-slate-300 border-white/10">
+                        <span className="text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase border bg-[#111827] text-slate-300 border-white/10">
                           {isSuperAdmin
                             ? "Super Admin"
                             : isAdmin
@@ -295,7 +294,7 @@ export default function Navbar() {
                         </span>
                       </div>
 
-                      <div className="w-9 h-9 bg-white/[0.05] border border-white/10 rounded-xl overflow-hidden group-hover:border-cyan-300/60 transition-all shadow-[0_10px_25px_rgba(0,0,0,0.25)]">
+                      <div className="w-9 h-9 bg-[#101829] border border-white/10 rounded-xl overflow-hidden group-hover:border-cyan-300/60 transition-all shadow-[0_10px_25px_rgba(0,0,0,0.25)]">
                         {user.avatar ? (
                           <img
                             src={user.avatar}
@@ -303,7 +302,7 @@ export default function Navbar() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white bg-gradient-to-br from-indigo-600 to-fuchsia-600">
+                          <div className="w-full h-full flex items-center justify-center text-white bg-gradient-to-br from-cyan-700 to-yellow-500">
                             <span className="text-xs font-black">
                               {user.firstName?.charAt(0)}
                             </span>
@@ -317,25 +316,35 @@ export default function Navbar() {
                       />
                     </div>
 
-                    <div className="absolute right-0 top-[100%] pt-4 w-60 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                      <div className="bg-[#080c1b]/98 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
+                    <div className="absolute right-0 top-[100%] pt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                      <div className="bg-[#080c1b] border border-white/10 rounded-2xl overflow-hidden shadow-[0_24px_70px_rgba(0,0,0,0.65)]">
                         <div className="p-2 space-y-1">
                           <Link
                             href="/profile"
-                            className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.06] group/item transition-all text-slate-300 hover:text-cyan-200"
+                            className="flex items-center gap-3 px-3 py-3 rounded-xl bg-[#080c1b] hover:bg-[#111827] transition-all text-slate-300 hover:text-cyan-200"
                           >
                             <Settings size={14} />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">
+                            <span className="text-[10px] font-black uppercase tracking-widest">
                               Tài khoản
                             </span>
                           </Link>
 
                           <Link
+                            href="/ticket"
+                            className="flex items-center gap-3 px-3 py-3 rounded-xl bg-[#080c1b] hover:bg-[#111827] transition-all text-slate-300 hover:text-yellow-200"
+                          >
+                            <Ticket size={14} />
+                            <span className="text-[10px] font-black uppercase tracking-widest">
+                              Vé của tôi
+                            </span>
+                          </Link>
+
+                          <Link
                             href="/orders"
-                            className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.06] group/item transition-all text-slate-300 hover:text-yellow-200"
+                            className="flex items-center gap-3 px-3 py-3 rounded-xl bg-[#080c1b] hover:bg-[#111827] transition-all text-slate-300 hover:text-yellow-200"
                           >
                             <CreditCard size={14} />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">
+                            <span className="text-[10px] font-black uppercase tracking-widest">
                               Đơn hàng
                             </span>
                           </Link>
@@ -343,7 +352,7 @@ export default function Navbar() {
                           {(isAdmin || isSuperAdmin) && (
                             <Link
                               href={isSuperAdmin ? "/super-admin" : "/admin"}
-                              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-purple-500/20 group/admin transition-all text-purple-200 hover:text-white"
+                              className="flex items-center gap-3 px-3 py-3 rounded-xl bg-[#080c1b] hover:bg-[#1b1230] transition-all text-purple-200 hover:text-white"
                             >
                               <ShieldCheck size={14} />
                               <span className="text-[10px] font-black uppercase tracking-widest">
@@ -355,7 +364,7 @@ export default function Navbar() {
 
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center justify-center gap-2 py-4 bg-white/[0.03] hover:bg-fuchsia-600 text-slate-300 hover:text-white transition-all border-t border-white/10"
+                          className="w-full flex items-center justify-center gap-2 py-4 bg-[#111827] hover:bg-rose-600 text-slate-300 hover:text-white transition-all border-t border-white/10"
                         >
                           <LogOut size={13} />
                           <span className="text-[9px] font-black uppercase tracking-widest">
@@ -370,7 +379,7 @@ export default function Navbar() {
                     href="/auth"
                     className="flex items-center gap-2 text-slate-200 hover:text-cyan-200 transition-all text-xs font-black uppercase tracking-[0.1em] group"
                   >
-                    <div className="p-2 bg-white/[0.05] rounded-full border border-white/10 group-hover:border-cyan-300/50 group-hover:bg-cyan-300/10 transition-all">
+                    <div className="p-2 bg-[#0d1222] rounded-full border border-white/10 group-hover:border-cyan-300/50 group-hover:bg-[#111827] transition-all">
                       <User size={14} />
                     </div>
                     Đăng nhập
@@ -380,7 +389,7 @@ export default function Navbar() {
 
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden text-slate-200 p-2 bg-white/[0.05] border border-white/10 rounded-xl hover:bg-purple-600 hover:text-white transition-all shrink-0"
+                className="lg:hidden text-slate-200 p-2 bg-[#0d1222] border border-white/10 rounded-xl hover:bg-[#111827] hover:text-white transition-all shrink-0"
                 aria-label="Mở menu"
               >
                 <Menu size={20} />
@@ -388,7 +397,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* TẦNG 2: THANH MENU ĐIỀU HƯỚNG CHÍNH */}
           <nav className="hidden lg:flex items-center justify-between py-3">
             <div className="flex items-center gap-8">
               {leftNavItems.map((item) => renderDesktopNavItem(item, "left"))}
@@ -401,7 +409,6 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* MOBILE OVERLAY */}
       <div
         className={`fixed inset-0 bg-[#050914]/82 backdrop-blur-md z-[200] lg:hidden transition-opacity duration-300 ${
           isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
@@ -409,9 +416,8 @@ export default function Navbar() {
         onClick={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* MOBILE MENU */}
       <div
-        className={`fixed top-0 right-0 h-screen w-[85vw] sm:w-[340px] bg-[#0b1020]/98 backdrop-blur-2xl border-l border-white/10 z-[210] lg:hidden transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col shadow-[-20px_0_60px_rgba(0,0,0,0.45)] ${
+        className={`fixed top-0 right-0 h-screen w-[85vw] sm:w-[340px] bg-[#0b1020] border-l border-white/10 z-[210] lg:hidden transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col shadow-[-20px_0_60px_rgba(0,0,0,0.45)] ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -428,7 +434,7 @@ export default function Navbar() {
 
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="p-2 bg-white/[0.05] hover:bg-purple-600 rounded-xl transition-all text-slate-200 hover:text-white border border-white/10"
+            className="p-2 bg-[#111827] hover:bg-rose-600 rounded-xl transition-all text-slate-200 hover:text-white border border-white/10"
             aria-label="Đóng menu"
           >
             <X size={20} />
@@ -447,7 +453,7 @@ export default function Navbar() {
               </Link>
             ) : (
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.04] border border-white/10">
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#0d1222] border border-white/10">
                   <img
                     src={
                       user.avatar ||
@@ -467,9 +473,18 @@ export default function Navbar() {
                   </div>
                 </div>
 
+                <Link
+                  href="/ticket"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 bg-[#111827] text-yellow-200 py-2.5 rounded-lg text-xs font-black uppercase mt-1 border border-white/10 transition-all"
+                >
+                  <Ticket size={14} />
+                  Vé của tôi
+                </Link>
+
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 bg-white/[0.04] text-slate-200 hover:bg-fuchsia-600 hover:text-white py-2 rounded-lg text-xs font-bold uppercase mt-2 border border-white/10 transition-all"
+                  className="flex items-center justify-center gap-2 bg-[#111827] text-slate-200 hover:bg-rose-600 hover:text-white py-2 rounded-lg text-xs font-bold uppercase border border-white/10 transition-all"
                 >
                   <LogOut size={14} />
                   Đăng xuất
@@ -491,7 +506,7 @@ export default function Navbar() {
                           mobileExpandedItem === item.title ? null : item.title
                         )
                       }
-                      className="w-full flex justify-between items-center py-4 text-[13px] font-[1000] text-slate-100 tracking-[0.18em] uppercase hover:text-cyan-200 transition-colors"
+                      className="w-full flex justify-between items-center py-4 text-xs font-black text-slate-100 tracking-[0.16em] uppercase hover:text-cyan-200 transition-colors"
                     >
                       {item.title}
                       <ChevronDown
@@ -511,13 +526,13 @@ export default function Navbar() {
                           : "max-h-0 opacity-0"
                       }`}
                     >
-                      <div className="flex flex-col gap-3 pl-4 border-l border-white/10 ml-2">
+                      <div className="flex flex-col gap-2 pl-4 border-l border-white/10 ml-2">
                         {item.submenu.map((sub: any) => (
                           <Link
                             key={sub.name}
                             href={sub.href}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="text-[10px] font-bold text-slate-400 hover:text-yellow-200 uppercase tracking-widest flex items-center gap-2 no-underline transition-colors"
+                            className="text-[10px] font-bold text-slate-400 hover:text-yellow-200 uppercase tracking-widest flex items-center gap-2 no-underline transition-colors py-1"
                           >
                             <ChevronRight size={12} className="text-slate-600" />
                             {sub.name}
@@ -530,7 +545,7 @@ export default function Navbar() {
                   <Link
                     href={item.href || "#"}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full flex justify-between items-center py-4 text-[13px] font-[1000] text-slate-100 hover:text-cyan-200 tracking-[0.18em] uppercase transition-colors no-underline"
+                    className="w-full flex justify-between items-center py-4 text-xs font-black text-slate-100 hover:text-cyan-200 tracking-[0.16em] uppercase transition-colors no-underline"
                   >
                     {item.title}
                     <ChevronRight size={14} className="text-slate-600" />
