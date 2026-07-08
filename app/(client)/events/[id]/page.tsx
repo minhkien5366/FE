@@ -7,18 +7,13 @@ import {
   ArrowLeft,
   BookmarkCheck,
   Gift,
-  Zap,
   Calendar,
   Clock,
   Sparkles,
   BadgePercent,
   ShieldCheck,
-  CheckCircle2,
   Copy,
-  X,
-  AlertTriangle,
   Ticket,
-  PartyPopper,
 } from "lucide-react";
 import { apiRequest, BASE_URL } from "@/app/lib/api";
 import toast, { Toaster } from "react-hot-toast";
@@ -56,6 +51,27 @@ const userToast: any = {
   },
 };
 
+const contentHtmlClassName = [
+  "text-slate-300",
+  "text-sm",
+  "md:text-base",
+  "leading-relaxed",
+  "prose",
+  "prose-invert",
+  "max-w-none",
+  "prose-headings:text-white",
+  "prose-headings:font-black",
+  "prose-headings:uppercase",
+  "prose-p:text-slate-400",
+  "prose-strong:text-white",
+  "prose-a:text-yellow-300",
+  "hover:prose-a:text-yellow-200",
+  "prose-li:text-slate-400",
+  "prose-img:rounded-2xl",
+  "prose-img:border",
+  "prose-img:border-white/10",
+].join(" ");
+
 export default function EventDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -66,6 +82,8 @@ export default function EventDetailPage() {
   const [isSavingId, setIsSavingId] = useState<number | null>(null);
   const [savedIds, setSavedIds] = useState<number[]>([]);
 
+  const eventId = Array.isArray(params.id) ? params.id[0] : params.id;
+
   const getUserToken = () => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("token_user") || "";
@@ -74,7 +92,7 @@ export default function EventDetailPage() {
     return "";
   };
 
-  const getImageUrl = (path?: string) => {
+  const getEventImageUrl = (path?: string) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
 
@@ -96,19 +114,21 @@ export default function EventDetailPage() {
   };
 
   const fetchData = async () => {
+    if (!eventId) return;
+
     try {
       setLoading(true);
 
       const token = getUserToken();
 
       const requests: Promise<Response>[] = [
-        apiRequest(`/api/v1/promotions/${params.id}`),
-        apiRequest(`/api/v1/vouchers/promotion/${params.id}`),
+        apiRequest(`/api/v1/promotions/${eventId}`),
+        apiRequest(`/api/v1/vouchers/promotion/${eventId}`),
       ];
 
       if (token) {
         requests.push(
-          apiRequest(`/api/v1/vouchers/my-vouchers`, {
+          apiRequest("/api/v1/vouchers/my-vouchers", {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
@@ -120,7 +140,9 @@ export default function EventDetailPage() {
       const responses = await Promise.all(requests);
 
       const eventJson = await responses[0].json().catch(() => ({}));
-      if (responses[0].ok) setEvent(eventJson.data || eventJson);
+      if (responses[0].ok) {
+        setEvent(eventJson.data || eventJson);
+      }
 
       const voucherJson = await responses[1].json().catch(() => ({}));
       if (responses[1].ok) {
@@ -150,8 +172,8 @@ export default function EventDetailPage() {
   };
 
   useEffect(() => {
-    if (params.id) fetchData();
-  }, [params.id]);
+    fetchData();
+  }, [eventId]);
 
   const handleSaveVoucher = async (voucherId: number) => {
     const token = getUserToken();
@@ -200,7 +222,7 @@ export default function EventDetailPage() {
   };
 
   const heroImage = event?.thumbnail
-    ? getImageUrl(event.thumbnail)
+    ? getEventImageUrl(event.thumbnail)
     : "https://placehold.co/1600x700/0b1020/f4d419?text=KN+Event";
 
   const savedCount = useMemo(() => savedIds.length, [savedIds]);
@@ -234,8 +256,8 @@ export default function EventDetailPage() {
           src={heroImage}
           alt={event?.title || "KN Event"}
           className="w-full h-full object-cover opacity-40 brightness-75 scale-105"
-          onError={(event) => {
-            event.currentTarget.src =
+          onError={(imageEvent) => {
+            imageEvent.currentTarget.src =
               "https://placehold.co/1600x700/0b1020/f4d419?text=KN+Event";
           }}
         />
@@ -322,10 +344,7 @@ export default function EventDetailPage() {
                 </div>
 
                 <div
-                  className="text-slate-300 text-sm md:text-base leading-relaxed prose prose-invert max-w-none 
-                    prose-headings:text-white prose-headings:font-black prose-headings:uppercase
-                    prose-p:text-slate-400 prose-strong:text-white prose-a:text-yellow-300 hover:prose-a:text-yellow-200
-                    prose-li:text-slate-400 prose-img:rounded-2xl prose-img:border prose-img:border-white/10"
+                  className={contentHtmlClassName}
                   dangerouslySetInnerHTML={{
                     __html:
                       event?.content ||
