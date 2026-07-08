@@ -248,7 +248,7 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-4 md:px-7 lg:px-10">
-          <div className="flex items-center justify-between py-2 md:py-2.5 border-b border-white/10">
+          <div className="flex items-center justify-between py-2 md:py-2.5 border-b border-white/10 gap-4">
             <Link
               href="/"
               className="flex items-center group shrink-0 no-underline overflow-visible"
@@ -262,20 +262,20 @@ export default function Navbar() {
               </span>
             </Link>
 
-            <div className="flex items-center gap-2.5 sm:gap-4 lg:gap-5">
+            <div className="flex items-center justify-end gap-2.5 sm:gap-3 lg:gap-4 min-w-0 flex-1">
               <Link
                 href="/movies/now"
-                className="hidden lg:flex items-center gap-1.5 mr-5 xl:mr-8 shrink-0 relative z-[1] bg-[#f4d419] hover:bg-[#ffea3d] text-[#111827] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.11em] transition-all shadow-[0_12px_30px_rgba(244,212,25,0.22)] hover:shadow-[0_16px_36px_rgba(244,212,25,0.32)]"
+                className="hidden xl:flex items-center gap-1.5 shrink-0 relative z-[20] bg-[#f4d419] hover:bg-[#ffea3d] text-[#111827] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.11em] transition-all shadow-[0_12px_30px_rgba(244,212,25,0.22)] hover:shadow-[0_16px_36px_rgba(244,212,25,0.32)]"
               >
                 <Ticket size={14} />
                 Đặt vé ngay
               </Link>
 
-              <div className="hidden md:block w-[240px] lg:w-[280px] xl:w-[320px] [&_input]:!h-9 [&_input]:!text-[11px] [&_button]:!h-9">
+              <div className="hidden md:block relative z-[60] flex-none w-[230px] lg:w-[270px] xl:w-[320px] 2xl:w-[380px] max-w-[42vw]">
                 <LiveSearchBar />
               </div>
 
-              <div className="hidden sm:flex items-center h-full">
+              <div className="hidden sm:flex items-center h-full shrink-0 relative z-[70]">
                 {loadingUser ? (
                   <div className="flex items-center gap-2 opacity-70">
                     <Loader2 size={14} className="animate-spin text-cyan-300" />
@@ -284,7 +284,7 @@ export default function Navbar() {
                   <div className="relative group h-full flex items-center z-[110]">
                     <div className="flex items-center gap-2 cursor-pointer select-none rounded-xl px-1.5 py-1 bg-[#0d1222] border border-white/10 hover:border-cyan-300/40 transition-all">
                       <div className="flex flex-col items-end leading-none gap-0.5">
-                        <span className="text-[10px] font-black text-slate-100 group-hover:text-cyan-200 transition-all uppercase tracking-[0.1em] italic">
+                        <span className="text-[10px] font-black text-slate-100 group-hover:text-cyan-200 transition-all uppercase tracking-[0.1em] italic max-w-[120px] truncate">
                           {user.lastName} {user.firstName}
                         </span>
 
@@ -297,7 +297,7 @@ export default function Navbar() {
                         </span>
                       </div>
 
-                      <div className="w-8 h-8 bg-[#101829] border border-white/10 rounded-xl overflow-hidden group-hover:border-cyan-300/60 transition-all shadow-[0_10px_25px_rgba(0,0,0,0.22)]">
+                      <div className="w-8 h-8 bg-[#101829] border border-white/10 rounded-xl overflow-hidden group-hover:border-cyan-300/60 transition-all shadow-[0_10px_25px_rgba(0,0,0,0.22)] shrink-0">
                         {user.avatar ? (
                           <img
                             src={user.avatar}
@@ -315,7 +315,7 @@ export default function Navbar() {
 
                       <ChevronDown
                         size={12}
-                        className="text-slate-300 group-hover:text-cyan-200 group-hover:rotate-180 transition-all duration-300"
+                        className="text-slate-300 group-hover:text-cyan-200 group-hover:rotate-180 transition-all duration-300 shrink-0"
                       />
                     </div>
 
@@ -380,7 +380,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     href="/auth"
-                    className="flex items-center gap-1.5 text-slate-200 hover:text-cyan-200 transition-all text-[10px] font-black uppercase tracking-[0.1em] group"
+                    className="flex items-center gap-1.5 text-slate-200 hover:text-cyan-200 transition-all text-[10px] font-black uppercase tracking-[0.1em] group whitespace-nowrap"
                   >
                     <div className="p-1.5 bg-[#0d1222] rounded-full border border-white/10 group-hover:border-cyan-300/50 group-hover:bg-[#111827] transition-all">
                       <User size={13} />
@@ -500,7 +500,10 @@ export default function Navbar() {
             const hasSubmenu = item.submenu && item.submenu.length > 0;
 
             return (
-              <div key={item.title} className="border-b border-white/10 last:border-0">
+              <div
+                key={item.title}
+                className="border-b border-white/10 last:border-0"
+              >
                 {hasSubmenu ? (
                   <div>
                     <button
